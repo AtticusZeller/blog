@@ -93,7 +93,7 @@ Reinforcement learning has deep roots in optimal control theory[^1] and Markov d
 
 ## Obsidian Comments
 
-%%This section is a draft note visible only in Obsidian. The sync script converts %% to HTML comments.%%
+%%This section is a draft note visible only in Obsidian — not published.%%
 
 The published post will not show the comment above.
 
