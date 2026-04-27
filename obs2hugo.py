@@ -14,20 +14,20 @@ from pathlib import Path
 
 
 def convert_wikilinks(text: str) -> str:
-    """Convert [[page|display]] first (greedy), then [[page]]."""
+    """Convert [[page|display]] first (greedy), then [[page]]. Skips ![[...]] (embeds)."""
 
     def slugify(name: str) -> str:
         return name.strip().lower().replace(" ", "-")
 
     # [[page|display]] -> [display](/posts/page/)
     text = re.sub(
-        r"\[\[([^\]|]+)\|([^\]]+)\]\]",
+        r"(?<!!)\[\[([^\]|]+)\|([^\]]+)\]\]",
         lambda m: f"[{m.group(2).strip()}](/posts/{slugify(m.group(1))}/)",
         text,
     )
     # [[page]] -> [page](/posts/page/)
     text = re.sub(
-        r"\[\[([^\]]+)\]\]",
+        r"(?<!!)\[\[([^\]]+)\]\]",
         lambda m: f"[{m.group(1).strip()}](/posts/{slugify(m.group(1))}/)",
         text,
     )

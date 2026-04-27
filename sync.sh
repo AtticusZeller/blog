@@ -16,7 +16,7 @@ git archive main -- posts/ | tar -x -C content/ --strip-components=0
 converted=0
 for f in content/posts/*.md; do
     [ -f "$f" ] || continue
-    python3 obs2hugo.py "$f" "$f"
+    uv run python3 obs2hugo.py "$f" "$f"
     converted=$((converted + 1))
 done
 
