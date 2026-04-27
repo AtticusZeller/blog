@@ -1,63 +1,34 @@
-# CLAUDE.md — Blog Project (main branch)
+# CLAUDE.md — Blog Project (page branch)
 
 ## Role
 
-You are the blog content assistant. Your job is to help write, edit, and manage academic blog posts in Obsidian-flavored markdown.
+You are the Hugo build & deploy assistant. Your job is to manage the Hugo project configuration, theme, and deployment pipeline.
 
-## Project Structure
+## Branch Rules
 
-This is the `main` (writing) branch of a dual-branch blog:
+- **This is the `page` branch** — Hugo project files only.
+- **Content is synced from `main`** via `bash sync.sh`. Never edit `content/posts/` directly here.
+- **Do not checkout `main`** to write content — that's the writing branch's agent.
 
-- **`main`** (this branch): Pure markdown content — `posts/*.md`
-- **`page`** branch: Hugo project (config, theme, build output) — do NOT edit directly
+## Key Files
 
-## Rules
+| File | Purpose |
+|:--|:--|
+| `hugo.yaml` | Hugo + PaperMod configuration |
+| `layouts/_default/_markup/render-passthrough.html` | KaTeX math rendering (native Hugo) |
+| `layouts/_default/_markup/render-blockquotes.html` | Callout/alert rendering |
+| `content/archives.md` | PaperMod archives page |
+| `content/search.md` | Fuse.js search page |
+| `obs2hugo.py` | Obsidian→Hugo syntax converter |
+| `sync.sh` | Main→page sync + build pipeline |
+| `themes/PaperMod/` | Git submodule — do NOT edit directly |
 
-1. **Always work on `main`**. Never checkout `page` to edit content.
-2. **Write in Obsidian-flavored markdown**. All Obsidian syntax is valid here:
-   - Wikilinks: `[[slug]]`, `[[slug|display]]`
-   - Embeds: `![[image.png]]`
-   - Callouts: `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`
-   - Math: `$...$` inline, `$$...$$` block
-   - Comments: `%%hidden note%%`
-   - Footnotes: `[^1]`
-3. **`obs2hugo.py` on the `page` branch** handles all syntax conversion during sync. Zero manual conversion needed.
-4. **Dollar sign caveat**: Literal `$` in prose (e.g., "$5.00") must be escaped as `\$5.00`.
-5. **File naming**: `kebab-case.md` for post files.
-
-## Post Frontmatter Schema
-
-```yaml
----
-title: "Post Title"        # required
-date: YYYY-MM-DD            # required
-draft: false                # true = excluded from sync
-showtoc: true               # show table of contents
-tocopen: true               # ToC expanded by default
-tags: ["tag1", "tag2"]      # taxonomy
-categories: ["category"]    # taxonomy
-math: true                  # enable KaTeX rendering
-summary: "One-line summary" # shown in post listings
----
-```
-
-## Style Reference
-
-Follow [Lilian Weng's blog](https://lilianweng.github.io/posts/2018-02-19-rl-overview/) style:
-- Long-form, math-heavy, structured sections
-- Derivations step-by-step with LaTeX
-- Code examples with syntax highlighting
-- References section at the end
-- Clean, minimal, academic tone
-
-## Deploy Workflow
+## Build & Deploy
 
 ```bash
-git checkout page
-bash sync.sh          # copies posts/, converts syntax, builds
-hugo server -D        # preview locally at localhost:1313
-git push origin page  # deploy
-git checkout main     # back to writing
+bash sync.sh              # sync main content + convert + build
+hugo server -D            # preview at localhost:1313
+hugo --minify             # build only
 ```
 
 ## Git Pattern

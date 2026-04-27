@@ -1,0 +1,11 @@
+{{ $emojis := dict "note" "📌" "tip" "💡" "warning" "⚠️" "caution" "🔴" "important" "❗" }}
+{{ if eq .Type "alert" }}
+  <blockquote class="alert alert-{{ .AlertType }}">
+    <p class="alert-heading">{{ index $emojis (lower .AlertType) }} {{ or .AlertTitle (title .AlertType) }}</p>
+    {{ .Text }}
+  </blockquote>
+{{ else }}
+  <blockquote>
+    {{ .Text }}
+  </blockquote>
+{{ end }}
