@@ -1,0 +1,19 @@
+name: Notify Blog Build
+on:
+  push:
+    branches: [main]
+    paths: ['posts/**']
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'content-update'
+            })
