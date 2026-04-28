@@ -1,83 +1,76 @@
-# CLAUDE.md — Blog Project (main branch)
+# CLAUDE.md — Blog Project
 
 ## Role
 
-You are the blog content assistant. Help write, edit, and manage academic blog posts in Obsidian-flavored markdown.
+Blog content + build assistant. Write posts on `main`, manage Hugo on `page`.
 
-## Project Structure
+## Architecture
 
-Dual-branch blog — this is the writing branch:
+| Branch | Content | Purpose |
+|:--|:--|:--|
+| `main` | `posts/*.md` (Obsidian markdown) | Writing |
+| `page` | Hugo project (config, theme, layouts) | Build & deploy via GitHub Actions |
 
-- **`main`** (this branch): `posts/*.md` — pure Obsidian-flavored markdown
-- **`page`** branch: Hugo project (config, theme, layouts) — do NOT edit directly
+Write on `main`, push, CI auto-deploys. Never checkout the other branch to edit its content.
 
-## Rules
+## Auto-Deploy Pipeline
 
-1. **Always work on `main`**. Never checkout `page` to edit content.
-2. **Write in Obsidian-flavored markdown**:
-   - Wikilinks: `[[slug]]`, `[[slug|display]]`
-   - Embeds: `![[image.png]]`
-   - Callouts: `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`
-   - Math: `$...$` inline, `$$...$$` block (MathJax v3 renders client-side)
-   - Comments: `%%hidden note%%`
-   - Footnotes: `[^citekey]` — use Zotero citekeys as footnote markers
-3. **`obs2hugo.py` on `page` branch** handles all syntax conversion during sync.
-4. **Dollar sign caveat**: Literal `$` in prose (e.g., "$5.00") must be escaped as `\$5.00`.
-5. **File naming**: `kebab-case.md` for post files.
+```
+push to main → .github/workflows/notify.yml (main)
+  → repository_dispatch "content-update"
+  → .github/workflows/deploy.yml (page)
+  → git fetch main → sync posts → obs2hugo → hugo build → deploy-pages
+```
+
+GitHub Pages source: **"GitHub Actions"** (Settings → Pages).
+
+## Writing Rules
+
+1. Write in Obsidian-flavored markdown: wikilinks `[[slug]]`, embeds `![[img]]`, callouts `> [!NOTE]`, math `$...$`/`$$...$$`, comments `%%..%%`
+2. Footnotes use Zotero citekeys: `[^citekey]`, leave definition empty for agent resolution
+3. Dollar sign caveat: literal `$` in prose → `\$5.00`
+4. File naming: `kebab-case.md`
+5. `obs2hugo.py` on `page` branch handles all syntax conversion during sync
 
 ## Post Frontmatter
 
 ```yaml
 ---
-title: "Post Title"        # required
-date: YYYY-MM-DD            # required
-draft: false                # true = excluded from build
-showtoc: true               # table of contents
-tocopen: true               # ToC expanded by default
+title: "Post Title"
+date: YYYY-MM-DD
+draft: false
+showtoc: true
+tocopen: true
 tags: ["tag1", "tag2"]
 categories: ["category"]
-math: true                  # enable MathJax rendering
+math: true
 summary: "One-line summary"
 ---
 ```
 
 ## Citation Workflow
 
-Write `[^citekey]` with Zotero citekeys, leave definitions empty:
+1. Write `[^citekey]:` (empty definition)
+2. Agent resolves via Zotero MCP → `[^citekey]: Authors. [Title](URL). *Venue*. Year.`
+3. Every post auto-generates "Cited as" BibTeX block from frontmatter
 
-```markdown
-As shown by[^mnih2015humanlevel].
+## Key Files (page branch)
 
-[^mnih2015humanlevel]:
-```
+| File | Purpose |
+|:--|:--|
+| `hugo.yaml` | Hugo + PaperMod config, MathJax passthrough, GitHub highlight theme |
+| `layouts/_default/_markup/render-passthrough.html` | Outputs raw `$$...$$` for MathJax v3 |
+| `layouts/_default/_markup/render-blockquote.html` | GitHub-style alerts |
+| `layouts/partials/extend_head.html` | Google Fonts + MathJax v3 config |
+| `static/css/academic.css` | Lora font, crimson accent, dotted links |
+| `.github/workflows/deploy.yml` | CI build + deploy |
+| `obs2hugo.py` | Obsidian→Hugo syntax converter |
+| `sync.sh` | Local sync + build pipeline |
 
-Before publishing, agent resolves via Zotero MCP:
+## Visual Style
 
-```markdown
-[^mnih2015humanlevel]: Mnih, V. et al. [Title](https://doi.org/...). *Nature*. 2015.
-```
-
-Every post auto-generates a "Cited as" BibTeX block for readers to cite.
-
-## Deploy
-
-**Automatic**: push to `main` → CI builds + deploys to GitHub Pages. No manual steps needed.
-
-```
-push main → notify.yml → repository_dispatch → deploy.yml (page branch)
-  → sync posts → obs2hugo → hugo build → deploy-pages
-```
-
-**Local preview**: `hugo server -D` on `page` branch.
-
-## Style Reference
-
-Follow [Lilian Weng's blog](https://lilianweng.github.io/posts/2018-02-19-rl-overview/):
-- Long-form, math-heavy, structured sections
-- Step-by-step derivations in LaTeX
-- Clean, minimal, academic tone
+Academic style (inspired by Lilian Weng): Lora serif, crimson `#e0491f`, dotted-underline links, ~800px column, GitHub code highlighting, pill tags.
 
 ## Git Pattern
 
-`.git` is a pointer file: `gitdir: ../../99_system/git/blog.git`
-Git data at `99_system/git/blog.git` with `core.worktree = ../../../20_project/blog`.
+`.git` → `gitdir: ../../99_system/git/blog.git`, worktree at `../../../20_project/blog`.
