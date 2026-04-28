@@ -1,0 +1,122 @@
+/* Academic blog style — inspired by Lilian Weng's Lil'Log */
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Open+Sans:wght@400;700&display=swap');
+
+:root {
+  --accent: #e0491f;
+  --accent-light: #f2795e;
+  --text-grey: #777;
+  --border-grey: #bbb;
+  --bg-light: #f0f0f0;
+}
+
+/* Typography */
+body {
+  font-family: "Lora", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16.5px;
+  line-height: 1.65;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+}
+
+/* UI elements use sans-serif */
+.header,
+.header .logo a,
+.header-nav,
+.post-meta,
+nav,
+.menu,
+.breadcrumbs,
+.toc {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Content width */
+.post-content {
+  max-width: 800px;
+}
+
+/* Links — dotted underline in posts */
+.post-content a {
+  color: var(--accent);
+  border-bottom: 1px dotted var(--border-grey);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+.post-content a:hover {
+  border-bottom: 2px solid var(--accent);
+}
+
+/* Heading hierarchy */
+.post-content h1 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+
+.post-content h2 {
+  font-size: 1.95rem;
+  font-weight: 600;
+}
+
+.post-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.post-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-grey);
+}
+
+/* Tag pills */
+.post-tags .tag,
+.list posts .post-tags a,
+.tags a {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--border-grey);
+  border-radius: 5px;
+  font-size: 0.85rem;
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.post-tags .tag:hover,
+.tags a:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Tables */
+.post-content table {
+  max-width: 100%;
+  font-size: 90%;
+  border-top: 2px solid #ddd;
+  border-bottom: 2px solid #ddd;
+  margin: 20px auto;
+}
+
+.post-content th {
+  text-align: center;
+  border-bottom: 2px solid #ddd;
+  padding: 2px 6px;
+}
+
+.post-content td {
+  padding: 2px 6px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Blockquotes (non-alert) */
+.post-content blockquote:not(.alert) {
+  border-left: 4px solid #ddd;
+  background: var(--bg-light);
+  color: var(--text-grey);
+  padding: 0.5em 1em;
+  font-size: 95%;
+}

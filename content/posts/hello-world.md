@@ -24,11 +24,6 @@ $$
 \nabla_\theta J(\theta) = \mathbb{E}_{\pi_\theta} \left[ \nabla_\theta \log \pi_\theta(a|s) \cdot Q^{\pi_\theta}(s,a) \right]
 $$
 
-Also works with `\(...\)` inline notation: \(E = mc^2\), and `\[...\]` blocks:
-
-\[
-\mathcal{L}(\theta) = -\sum_{i} y_i \log \hat{y}_i
-\]
 
 ## Code
 

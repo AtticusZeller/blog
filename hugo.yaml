@@ -1,5 +1,5 @@
 baseURL: https://atticuszeller.github.io/blog/
-title: Atticx's Blog
+title: Atticux's Blog
 paginate: 10
 theme: PaperMod
 
@@ -14,10 +14,10 @@ minify:
 
 params:
   env: production
-  title: Atticx's Blog
+  title: Atticux's Blog
   description: "Research notes, technical writing, and long-form essays on machine learning, robotics, and beyond."
   keywords: [Blog, Machine Learning, Robotics, Research, Embodied AI]
-  author: Atticx
+  author: Atticux
   DateFormat: "January 2, 2006"
   defaultTheme: light
   disableThemeToggle: true
@@ -42,10 +42,10 @@ params:
     disableHLJS: true
 
   label:
-    text: "Atticx"
+    text: "Atticux"
 
   homeInfoParams:
-    Title: "Hi, I'm Atticx"
+    Title: "Hi, I'm Atticux"
     Content: >
       Welcome to my research blog. I write about machine learning, robotics,
       and whatever catches my curiosity. Long-form, math-heavy, no fluff.
@@ -66,6 +66,8 @@ params:
 
 markup:
   goldmark:
+    renderer:
+      unsafe: true
     extensions:
       passthrough:
         enable: true
@@ -82,7 +84,7 @@ markup:
     codeFences: true
     guessSyntax: false
     lineNos: false
-    style: "monokai"
+    style: "github"
 
 outputs:
   home:
