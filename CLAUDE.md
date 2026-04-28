@@ -2,27 +2,26 @@
 
 ## Role
 
-You are the Hugo build & deploy assistant. Your job is to manage the Hugo project configuration, theme, and deployment pipeline.
+You are the Hugo build & deploy assistant. Manage the Hugo project configuration, theme, and deployment pipeline on this branch.
 
 ## Branch Rules
 
 - **This is the `page` branch** — Hugo project files only.
-- **Content is synced from `main`** via `bash sync.sh`. Never edit `content/posts/` directly here.
-- **Do not checkout `main`** to write content — that's the writing branch's agent.
+- **Content is synced from `main`** via `sync.sh` (locally) or CI. Never edit `content/posts/` directly.
+- **Do not checkout `main`** to write content — that's the writing branch.
 
 ## Key Files
 
 | File | Purpose |
 |:--|:--|
-| `hugo.yaml` | Hugo + PaperMod configuration |
-| `layouts/_default/_markup/render-passthrough.html` | MathJax pass-through for LaTeX |
-| `layouts/_default/_markup/render-blockquote.html` | Callout/alert rendering |
-| `layouts/partials/extend_head.html` | Google Fonts + MathJax config |
-| `static/css/academic.css` | Academic visual style (Lora, crimson, dotted links) |
-| `content/archives.md` | PaperMod archives page |
-| `content/search.md` | Fuse.js search page |
-| `obs2hugo.py` | Obsidian→Hugo syntax converter |
-| `sync.sh` | Main→page sync + build pipeline |
+| `hugo.yaml` | Hugo + PaperMod config (MathJax passthrough, GitHub highlight theme) |
+| `layouts/_default/_markup/render-passthrough.html` | Outputs raw `$$...$$` for MathJax v3 client-side rendering |
+| `layouts/_default/_markup/render-blockquote.html` | GitHub-style alerts (NOTE/TIP/WARNING/CAUTION) |
+| `layouts/partials/extend_head.html` | Google Fonts + MathJax v3 config (tags: ams) |
+| `static/css/academic.css` | Academic style: Lora font, crimson accent, dotted links, 800px column |
+| `.github/workflows/deploy.yml` | CI: build + deploy to GitHub Pages |
+| `obs2hugo.py` | Obsidian→Hugo syntax converter (wikilinks, embeds, comments) |
+| `sync.sh` | Local sync: pull posts from main → convert → build |
 | `themes/PaperMod/` | Git submodule — do NOT edit directly |
 
 ## Build & Deploy
@@ -33,59 +32,32 @@ hugo server -D            # preview at localhost:1313
 hugo --minify             # build only
 ```
 
-## Citation Resolution Workflow
+## CI/CD Pipeline
 
-When a post uses `[^citekey]` as footnote markers (where citekey is a Zotero citation key), resolve them before publishing:
+**Auto-deploy**: push to `main` → `notify.yml` sends `repository_dispatch` → `deploy.yml` on `page` builds + deploys.
 
-### Input (user writes in Obsidian)
+- GitHub Pages source must be set to **"GitHub Actions"** (not branch)
+- Workflow installs Hugo extended 0.160.1, syncs from main, builds, deploys via `deploy-pages`
+- Also triggers on push to `page` (config/theme changes) and manual `workflow_dispatch`
 
-```markdown
-As shown by Mnih et al.[^mnih2015humanlevel] and later improved in[^silver2017mastering].
+## Math Rendering
 
-[^mnih2015humanlevel]:
-[^silver2017mastering]:
-```
+- **Engine**: MathJax v3 (client-side), NOT KaTeX
+- **Goldmark passthrough** protects LaTeX from markdown processing
+- `render-passthrough.html` outputs raw `$...$` / `$$...$$` for MathJax
+- Equation auto-numbering via `tags: "ams"` in MathJax config
 
-### Resolution steps
+## Citation Resolution
 
-1. Scan post for all `[^citekey]:` footnote definitions (empty ones need resolution)
-2. For each citekey, look up via Zotero MCP to get: authors, title, URL, venue, year
-3. Fill the footnote definition in this exact format:
+When posts use `[^citekey]` with Zotero citekeys:
 
-```markdown
-[^citekey]: Author1, A.; Author2, B. [Title](https://doi.org/...). *Venue*. Year.
-```
+1. Scan for empty `[^citekey]:` definitions
+2. Look up each citekey via Zotero MCP
+3. Fill: `[^citekey]: Authors. [Title](URL). *Venue*. Year.`
 
-Format rules:
-- Authors: `Last, F.` separated by `;`, last author preceded by `&`
-- Title: markdown link `[Title](URL)` pointing to paper
-- Venue: italicized (`*Venue*`) — journal name, conference, or "arXiv preprint"
-- Year: bare number
-- Example: `[^mnih2015humanlevel]: Mnih, V. et al. [Human-level control through deep RL](https://...). *Nature*. 2015.`
-
-### Auto-generate "Cited as" BibTeX block
-
-Every published post gets a "Cited as" block appended before the footnotes section. Generate it from the post's frontmatter:
-
-```markdown
----
-
-Cited as:
-
-```bibtex
-@article{zellerYYYYslug,
-  title   = "Post Title",
-  author  = "Zeller, Atticus",
-  journal = "atticuszeller.github.io/blog",
-  year    = "YYYY",
-  url     = "https://atticuszeller.github.io/blog/posts/slug/"
-}
-```
-```
-
-Where `YYYY` = publication year, `slug` = filename without `.md`.
+Every published post auto-generates a "Cited as" BibTeX block from frontmatter.
 
 ## Git Pattern
 
-`.git` is a pointer file: `gitdir: ../../99_system/git/blog.git`
-Git data stored at `99_system/git/blog.git` with `core.worktree = ../../../20_project/blog`.
+`.git` → `gitdir: ../../99_system/git/blog.git`
+`core.worktree = ../../../20_project/blog`
