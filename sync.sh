@@ -12,6 +12,12 @@ rm -rf content/posts/
 mkdir -p content/posts
 git archive main -- posts/ | tar -x -C content/ --strip-components=0
 
+# Sync posts/images/ from main into static/images/ (flatten one level)
+mkdir -p static/images
+git archive main -- posts/images/ 2>/dev/null \
+  | tar -x -C static/images --strip-components=2 2>/dev/null \
+  || true
+
 # Convert Obsidian syntax -> Hugo syntax
 converted=0
 for f in content/posts/*.md; do
