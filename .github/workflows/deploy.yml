@@ -46,6 +46,10 @@ jobs:
           rm -rf content/posts/
           mkdir -p content/posts
           git archive main -- posts/ | tar -x -C content/ --strip-components=0
+          mkdir -p static/images
+          git archive main -- posts/images/ 2>/dev/null \
+            | tar -x -C static/images --strip-components=2 2>/dev/null \
+            || true
           converted=0
           for f in content/posts/*.md; do
             [ -f "$f" ] || continue
