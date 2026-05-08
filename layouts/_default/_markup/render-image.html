@@ -1,6 +1,15 @@
-<img src="{{ .Destination | safeURL | relURL }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy">
+{{- $dest := .Destination -}}
+{{- $isExternal := or (hasPrefix $dest "http://") (hasPrefix $dest "https://") (hasPrefix $dest "//") (hasPrefix $dest "data:") -}}
+{{- $src := $dest -}}
+{{- if not $isExternal -}}
+  {{- $base := strings.TrimSuffix "/" (urls.Parse site.BaseURL).Path -}}
+  {{- $path := $dest -}}
+  {{- if not (hasPrefix $path "/") -}}{{- $path = print "/" $path -}}{{- end -}}
+  {{- $src = print $base $path -}}
+{{- end -}}
+<img src="{{ $src | safeURL }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy">
 {{- /* Markdown image render hook.
-     Uses relURL so absolute paths like /images/foo.png get the baseURL's
-     subpath (e.g. /blog) prepended at build time. Without this hook, Hugo's
-     default emits the path as-is, which 404s when the site is mounted under
-     a subpath. */ -}}
+     Hugo's relURL doesn't prepend the baseURL's subpath when destinations
+     start with /, so we manually splice the path component of site.BaseURL
+     onto destinations. External URLs (http/https/protocol-relative/data:)
+     pass through unchanged. */ -}}
