@@ -1,0 +1,6 @@
+<img src="{{ .Destination | safeURL | relURL }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy">
+{{- /* Markdown image render hook.
+     Uses relURL so absolute paths like /images/foo.png get the baseURL's
+     subpath (e.g. /blog) prepended at build time. Without this hook, Hugo's
+     default emits the path as-is, which 404s when the site is mounted under
+     a subpath. */ -}}
