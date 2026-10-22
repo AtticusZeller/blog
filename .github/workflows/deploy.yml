@@ -51,9 +51,6 @@ jobs:
           posts=(posts/*.md)
           if (( ${#posts[@]} )); then cp "${posts[@]}" site/content/posts/; fi
           if [ -d posts/images ]; then cp -r posts/images/. site/static/images/; fi
-          for f in site/content/posts/*.md; do
-            python3 site/obs2hugo.py "$f" "$f"
-          done
           echo "Synced ${#posts[@]} posts"
 
       - name: Setup Pages
