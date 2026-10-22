@@ -15,9 +15,6 @@ showtoc: true
 tocopen: true
 ---
 
-# Transformer
-
-
 ## Attention Pooling
 
 ![qkv](/images/transformer-8394449e7ce2.svg)
@@ -34,21 +31,19 @@ $$ \operatorname{Attention}(\mathbf{q},D) \overset{\mathrm{def}}{=} \sum_{i=1}^{
 
 ## Attention Weight
 
-前面的图 是 attention pooling 的过程, 输出是 对 $\boldsymbol{v}$ 的线性组合,而且是凸组合, 计算过程是 depend 这个 attention weight 怎么计算 ?
+前面的图 是 attention pooling 的过程，输出是 对 $\boldsymbol{v}$ 的线性组合，而且是凸组合，计算过程是 depend 这个 attention weight 怎么计算 ?
 
 ![attention-output](/images/transformer-b688f2891b59.svg)
 
-1. 先要算 attention score, 这里采用 dot product 来衡量 $\boldsymbol{q}$ 和 $\boldsymbol{k}_{i}$ 的相似度, 除 $\sqrt{ d }$ 是为了让 $s_{i}$ 的典型大小随维度 $d$ 增长的问题
+1. 先要算 attention score, 这里采用 dot product 来衡量 $\boldsymbol{q}$ 和 $\boldsymbol{k}_{i}$ 的相似度，除 $\sqrt{ d }$ 是为了让 $s_{i}$ 的典型大小随维度 $d$ 增长的问题
 
 只不过这里 假设了 $\mathbf{q}\in\mathbb{R}^{d},\mathbf{k}_i\in\mathbb{R}^{d}$, 所有元素都是独立同分布的随机变量，均值为零，方差为一。两个向量之间的点积均值为零，方差为 $d$
 
-> 如果把 dot product 看成随机变量 $X$, 减去均值除上 标准差来做标准化 ,这里就是 除根号 d
+> 如果把 dot product 看成随机变量 $X$, 减去均值除上 标准差来做标准化，这里就是 除根号 d[^2]
 
 $$ a(\mathbf{q},\mathbf{k}_i) = \frac{\mathbf{q}^{\top}\mathbf{k}_i}{\sqrt{d}} $$
 
-[^2]
-
-如果不消除维度 $d$ 带来的影响,方差大了会导致后面 一些列问题 比如 softmax 退化成 one-hot 的情况不利于参数学习
+如果不消除维度 $d$ 带来的影响，方差大了会导致后面 一些列问题 比如 softmax 退化成 one-hot 的情况不利于参数学习
 
 2. 套 softmax 算 attention weight
 对权重计算函数 $\alpha$ 需要满足 凸组合 ( convex combination) 的性质:
@@ -56,11 +51,9 @@ $$ a(\mathbf{q},\mathbf{k}_i) = \frac{\mathbf{q}^{\top}\mathbf{k}_i}{\sqrt{d}} $
 
 $$ \sum_{i=1}^{m} \alpha(\mathbf{q},\mathbf{k}_i)=1, \qquad \alpha(\mathbf{q},\mathbf{k}_i)\ge 0 $$
 
-因此要套一层 *softmax* 得到 attention weight 的函数:
+因此要套一层 *softmax* 得到 attention weight 的函数[^1]:
 
 $$ \alpha(\mathbf{q},\mathbf{k}_i) = \operatorname{softmax}\!\left(a(\mathbf{q},\mathbf{k}_i)\right) = \frac{ \exp\!\left(\mathbf{q}^{\top}\mathbf{k}_i/\sqrt{d}\right) }{ \sum_{j=1}^{n} \exp\!\left(\mathbf{q}^{\top}\mathbf{k}_j/\sqrt{d}\right) } $$
-
-[^1]
 
 > exp 就是指数函数 $e^{x}$
 
@@ -70,7 +63,7 @@ $$ \alpha(\mathbf{q},\mathbf{k}_i) = \operatorname{softmax}\!\left(a(\mathbf{q},
 
 前面定义 $\alpha(\mathbf{q},\mathbf{k}_i)$ 是一次 查询 $q$ 对 一个 $\boldsymbol{k}_{i}$ 算 一项 attention weight $\alpha_{i}$ 算 $m$ 次得到 attention output
 
-实践中有时需要对 $\boldsymbol{q},\boldsymbol{k}_{i}$ 进行批量计算, 比如同时算 $n$ 次 attention pooling 即
+实践中有时需要对 $\boldsymbol{q},\boldsymbol{k}_{i}$ 进行批量计算，比如同时算 $n$ 次 attention pooling 即
 
 * 同时计算 $n$ 个查询和 $m$ 个 $\boldsymbol{k}_{i},\boldsymbol{v}_{i}$ 对的 attention
 
@@ -80,7 +73,7 @@ $$ \mathbf{Q}\in\mathbb{R}^{n\times d}, \qquad \mathbf{K}\in\mathbb{R}^{m\times 
 
 $$ \boldsymbol{S} = \frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d}} $$
 
-计算时间复杂度是 $O(mnd)$ 理解为最终产出 $mn$ 个元素,并且每个元素的产生有 $d$ 项加起来得到的
+计算时间复杂度是 $O(mnd)$ 理解为最终产出 $mn$ 个元素，并且每个元素的产生有 $d$ 项加起来得到的
 
 $$ \operatorname{softmax}\!\left( \frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d}} \right) \mathbf{V} \in \mathbb{R}^{n\times v} $$
 
@@ -96,7 +89,7 @@ $$ \operatorname{softmax}\!\left( \frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d}} \
 
 算 attention score
 
-shape= (b,n,m)
+`shape=(b, n, m)`
 
 > [!example]- 代码：计算 attention score
 >
@@ -121,7 +114,7 @@ shape= (b,n,m)
 
 $$ \mathbf S=[s_{ij}]_{n\times m}, \qquad s_{ij}=a(\mathbf q_i,\mathbf k_j) $$
 
-表示所有 query 与 key 之间的匹配程度, 但有些 query-key 位置按照**任务规则**不允许被关注
+表示所有 query 与 key 之间的匹配程度，但有些 query-key 位置按照**任务规则**不允许被关注
 
 
 $$ \widetilde{\mathbf S}_{ij} = \begin{cases} \mathbf S_{ij}, & M_{ij}=1\quad (\mathbf q_i\text{ 可以关注 }\mathbf k_j),\\ -\infty, & M_{ij}=0\quad (\mathbf q_i\text{ 不允许关注 }\mathbf k_j), \end{cases} \qquad \mathbf M\in\{0,1\}^{n\times m} $$
@@ -138,12 +131,12 @@ $$ \widetilde{\mathbf S}_{ij} = \begin{cases} \mathbf S_{ij}, & M_{ij}=1\quad (\
 
 常见的 mask 类型有
 
-1. Padding Mask 比如一个 batch 里面 有一些 序列长度不一样,是占位符, 屏蔽补齐的 `<pad>` token, 这些位置就应该被 屏蔽
-2. Causal Mask 当前位置不能看到未来 token。通常是一个下三角矩阵, 用于 GPT 等自回归模型。
+1. Padding Mask 比如一个 batch 里面 有一些 序列长度不一样，是占位符，屏蔽补齐的 `<pad>` token, 这些位置就应该被 屏蔽
+2. Causal Mask 当前位置不能看到未来 token。通常是一个下三角矩阵，用于 GPT 等自回归模型。
 
 ## Additive Attention
 
-这是相对于 scaled dot product 的 attention score 方法, 适用于 $\mathbf{q}\in\mathbb{R}^{q},\mathbf{k}\in\mathbb{R}^{k}$ 维度不匹配不能 dot product 的时候
+这是相对于 scaled dot product 的 attention score 方法，适用于 $\mathbf{q}\in\mathbb{R}^{q},\mathbf{k}\in\mathbb{R}^{k}$ 维度不匹配不能 dot product 的时候
 
 $$ a(\mathbf{q},\mathbf{k}) = \mathbf{w}_v^{\top} \operatorname{tanh}\!\left( \mathbf{W}_q\mathbf{q} + \mathbf{W}_k\mathbf{k} \right) \in \mathbb{R} $$
 
@@ -168,13 +161,11 @@ $$ s_i = \underbrace{\mathbf w_v^\top}_{1\times h} \mathbf h_i $$
 
 $$ (d_q+d_k)\rightarrow h\rightarrow1 $$
 
-> `tanh` 是激活函数它把任意实数压缩到 $(-1,1)$[nn](../nn-basics/)
+> `tanh` 是激活函数它把任意实数压缩到 $(-1,1)$，见 [神经网络基础组件](../nn-basics/)
 
 ## Multi-Head Attention
 
-[^3]
-
-在实践中，对于**同一组查询、键和值**，我们可能希望模型能够融合来自同一注意力机制不同行为的知识，例如捕捉序列中不同范围（例如，短范围与长范围）之间的依赖关系
+在实践中，对于**同一组查询、键和值**，我们可能希望模型能够融合来自同一注意力机制不同行为的知识，例如捕捉序列中不同范围（例如，短范围与长范围）之间的依赖关系[^3]
 
 ![multi-head-attention](/images/transformer-28cd949c5c8c.svg)
 
@@ -219,7 +210,7 @@ $$ \operatorname{MultiHead}(\mathbf{Q},\mathbf{K},\mathbf{V}) = \operatorname{Co
 
 ### Self-Attention and Cross-Attention
 
-二者使用相同的多头注意力计算，区别在于输入来源：
+二者使用相同的多头注意力计算，区别在于输入来源[^3]：
 
 * **Self-attention**：query、key、value 的输入都来自同一个序列 `x`。
 * **Cross-attention**：query 来自当前序列，key、value 来自另一个序列 `memory`。
@@ -289,8 +280,6 @@ $$ \text{head output}=\text{self\_weights}\times V_{heads} $$
 > # shape: (B, H, L, d_h)
 > ```
 
-[^3]
-
 ## Positional Encoding
 
 ![cnn-rnn-self-attention](/images/transformer-17e926522ec5.svg)
@@ -304,15 +293,15 @@ $$ \text{head output}=\text{self\_weights}\times V_{heads} $$
 
 经典实现方式是:
 
-$\text{固定正余弦绝对位置编码：}\quad src=X+P$
+固定正余弦绝对位置编码：$\text{src}=X+P$
 
-假设输入表示 $\mathbf{X}\in\mathbb{R}^{n\times d}$ 包含序列符号的  $dn$- 维嵌入。位置编码 $\mathbf{X}+\mathbf{P},$ 使用  $\mathbf{P}\in\mathbb{R}^{n\times d}$ 相同形状的位置嵌入矩阵输出，其在 $i^{th}$ 行和 $(2j)^{th}$ 或 $(2j+1)^{th}$  列上的元素为
+假设输入表示 $\mathbf{X}\in\mathbb{R}^{n\times d}$ 包含序列符号的  $dn$- 维嵌入。位置编码 $\mathbf{X}+\mathbf{P},$ 使用  $\mathbf{P}\in\mathbb{R}^{n\times d}$ 相同形状的位置嵌入矩阵输出，其在第 $i$ 行、第 $2j$ 或 $2j+1$ 列上的元素为
 
 $$ \begin{split}\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2j+1} &= \cos\left(\frac{i}{10000^{2j/d}}\right).\end{aligned}\end{split} $$
 
 只在最开始送入 encoder`TransformerEncoderLayer`(或者 decoder) 堆叠或者 `MultiheadAttention` 的时候编码位置信息
 
-* [?] 现代 Transformer 还可能使用可学习位置嵌入、RoPE、相对位置偏置、ALiBi 等，具体原理等实际遇到再补充即可。
+* 现代 Transformer 还可能使用可学习位置嵌入、RoPE、相对位置偏置、ALiBi 等，具体原理等实际遇到再补充即可。
 
 ## The Transformer Architecture
 
@@ -408,7 +397,7 @@ encoder 最终输出整条源序列的上下文化表示，一般记作 `memory`
 
 这个 mask 就是 causal mask 因果 mask
 
-causal mask = 用矩阵并行实现“每个位置只能根据过去预测下一个 token
+causal mask = 用矩阵并行实现“每个位置只能根据过去预测下一个 token”
 
 mask 本质就是让串行的把它扩展成了矩阵形式一次性计算所以如果再考虑 mask 应该长什么样，你就要去思考，你想一次性算什么相当于从上到下，你一次性就算完了一个连续过程。这个连续过程中，每一次计算，你希望谁能看到谁，谁不能看到谁，这个就是对 mask 的设计思路
 
@@ -489,9 +478,9 @@ Transformer 架构最初是为序列到序列学习提出的，重点应用于�
 
 ViT 尝试将 Transformer 用于图像分类
 
-Transformer 是处理序列的, 图像在送入之前得切块才能变成 token 序列
+Transformer 是处理序列的，图像在送入之前得切块才能变成 token 序列
 
-是 encoder-only Transformer ,Pre-Norm（Norm → Attention/FNN → Residual 的
+是 encoder-only Transformer ,Pre-Norm（Norm → Attention/FNN → Residual 的）
 
 ![vit](/images/transformer-4af3b559c575.svg)
 
@@ -796,7 +785,7 @@ ViT 使用 Pre-LayerNorm，即先进行归一化，再进入多头自注意力�
 
 ![Pasted image 20260606163249](/images/transformer-8777a4995b55.png)
 
-![](https://jalammar.github.io/images/t/The_transformer_encoder_decoder_stack.png)
+![jalammar-transformer-encoder-decoder-stack](/images/transformer-bdc0fd6444dd.png)
 
 编码器在结构上完全相同（但它们不共享权重）。每个编码器都分解为两个子层
 
@@ -830,7 +819,7 @@ Self-attention is the method the Transformer uses to bake the “understanding�
 
 请将以下句子作为我们想要翻译的输入句子：
 
-”`The animal didn't cross the street because it was too tired`”
+“`The animal didn't cross the street because it was too tired`”
 
 这句话中的“it”指的是什么？是指街道还是指动物？对人类来说这是一个简单的问题，但对算法来说就不那么简单了。
 
@@ -866,7 +855,7 @@ self-attention 就是在更新某个 token 表示时，让它参考同一句子�
 
 > 也就是这个 token 会多少程度上关注 token 序列的其他 token
 
-该分数是通过将 查询向量 与我们正在评分的相应单词的 键向量 进行点积计算得出的。因此，如果我们正在处理位置 #1 的单词的自注意力机制，第一个分数将是 q1 和 k1 的点积。第二个分数将是 q1 和 k2 的点积。
+该分数是通过将 查询向量 与我们正在评分的相应单词的 键向量 进行点积计算得出的。因此，如果我们正在处理位置 #1 的单词的自注意力机制，第一个分数将是 $q_1$ 和 $k_1$ 的点积。第二个分数将是 $q_1$ 和 $k_2$ 的点积。
 
 ![Pasted image 20260607094020](/images/transformer-3fafc2cf5116.png)
 
@@ -886,7 +875,7 @@ self-attention 就是在更新某个 token 表示时，让它参考同一句子�
 
 把前面的拆分换成矩阵的形式
 
-**第一步**是计算查询（Query）、键（Key）和值（Value）矩阵。我们通过将嵌入（embeddings）打包到矩阵 $X$ 中，并将其与训练好的权重矩阵（WQ、WK、WV）相乘来完成这一步。
+**第一步**是计算查询（Query）、键（Key）和值（Value）矩阵。我们通过将嵌入（embeddings）打包到矩阵 $X$ 中，并将其与训练好的权重矩阵（$W^Q$、$W^K$、$W^V$）相乘来完成这一步。
 
 ![Pasted image 20260607101345](/images/transformer-4a68511322f8.png)
 
@@ -901,7 +890,7 @@ self-attention 就是在更新某个 token 表示时，让它参考同一句子�
 3. softmax 把分数归一成权重
 4. 再对 $V$ 加权求和 得到 $Z$
 
-Scaled Dot-Product Attention
+**Scaled Dot-Product Attention**
 
 ```python
 import torch, math
@@ -929,12 +918,12 @@ def scaled_dot_product_attention(Q, K, V, mask=None):
 
 该论文通过添加一种称为“多头”注意力的机制，进一步精炼了自注意力层。这通过两种方式提高了注意力层的性能：
 
-1. **它扩展了模型关注不同位置的能力**。是的，在上面的例子中，z1 包含了其他编码的一点点信息，但它可能被实际单词本身所主导。如果我们正在翻译一个像“动物没有过马路，因为它太累了”这样的句子，知道“it”指的是哪个词将非常有用。
+1. **它扩展了模型关注不同位置的能力**。是的，在上面的例子中，$z_1$ 包含了其他编码的一点点信息，但它可能被实际单词本身所主导。如果我们正在翻译一个像“动物没有过马路，因为它太累了”这样的句子，知道“it”指的是哪个词将非常有用。
 2. 它为注意力层提供了多个“表示子空间”。正如接下来我们将看到的，通过多头注意力机制，我们不仅有一个，而是多个 Query/Key/Value 权重矩阵的集合（Transformer 使用八个注意力头，因此**每个编码器/解码器最终都会有八个集合**）。这些集合中的每一个都是**随机初始化**的。然后，在训练之后，每个集合都被用来将输入嵌入（或来自较低编码器/解码器的向量）投影到不同的表示子空间中。
 
 ![Pasted image 20260607111314](/images/transformer-3c561d9c4f03.png)
 
-如果我们按照上述概述进行同样的自注意力计算，只是用不同的权重矩阵重复八次，最终我们会得到八个不同的 Z 矩阵
+如果我们按照上述概述进行同样的自注意力计算，只是用不同的权重矩阵重复八次，最终我们会得到八个不同的 $Z$ 矩阵
 
 ![Pasted image 20260607111539](/images/transformer-3c3a95ffa42b.png)
 
@@ -986,15 +975,15 @@ encoder 的最后一层输出会送到 每一个的 decoder 的 cross-attention
 
 现在我们已经涵盖了编码器的大部分概念，基本上也知道了解码器组件的工作原理。但让我们看看它们是如何**协同**工作的。
 
-编码器首先处理输入序列。然后，顶层编码器的输出被转换为一组注意力向量 K 和 V。这些向量将被每个解码器在其“编码器 - 解码器注意力”层中使用，以帮助解码器专注于输入序列中的适当位置：
+编码器首先处理输入序列。然后，顶层编码器的输出被转换为一组注意力向量 $K$ 和 $V$。这些向量将被每个解码器在其“编码器 - 解码器注意力”层中使用，以帮助解码器专注于输入序列中的适当位置：
 
-![](https://jalammar.github.io/images/t/transformer_decoding_1.gif)
+![jalammar-transformer-decoding-1](/images/transformer-b1053d83b6f4.gif)
 
 解码器一开始 是没有输入的，然后 output 都会作为 decoder 自己的输入
 
 以下步骤将重复执行，直到出现特殊符号，表明 Transformer 解码器已完成其输出。每一步的输出将输入到下一个时间步的底部解码器中，解码器像编码器一样逐层传递其解码结果。与我们对编码器输入所做的那样，我们也对解码器输入进行嵌入并添加位置编码，以指示每个单词的位置。
 
-![](https://jalammar.github.io/images/t/transformer_decoding_2.gif)
+![jalammar-transformer-decoding-2](/images/transformer-c89d9449ead2.gif)
 
 在解码器中，自注意力层**仅被允许关注输出序列中较早的位置**。这是通过在自注意力计算中的 softmax 步骤之前，将未来位置掩码化（将其设置为 `-inf`）来实现的。也就是 masked multi-head attention
 
