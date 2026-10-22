@@ -30,12 +30,7 @@ score → softmax → weight → weighted sum
 
 查询对象 定义为 $D \overset{\mathrm{def}}{=}\{(\mathbf{k}_1,\mathbf{v}_1),\ldots,(\mathbf{k}_m,\mathbf{v}_m)\}$ 得到的定义:
 
-$$
-\operatorname{Attention}(\mathbf{q},D)
-\overset{\mathrm{def}}{=}
-\sum_{i=1}^{m}
-\alpha(\mathbf{q},\mathbf{k}_i)\mathbf{v}_i
-$$
+$$ \operatorname{Attention}(\mathbf{q},D) \overset{\mathrm{def}}{=} \sum_{i=1}^{m} \alpha(\mathbf{q},\mathbf{k}_i)\mathbf{v}_i $$
 
 ## Attention Weight
 
@@ -49,11 +44,7 @@ $$
 
 > 如果把 dot product 看成随机变量 $X$, 减去均值除上 标准差来做标准化 ,这里就是 除根号 d
 
-$$
-a(\mathbf{q},\mathbf{k}_i)
-=
-\frac{\mathbf{q}^{\top}\mathbf{k}_i}{\sqrt{d}}
-$$
+$$ a(\mathbf{q},\mathbf{k}_i) = \frac{\mathbf{q}^{\top}\mathbf{k}_i}{\sqrt{d}} $$
 
 [^2]
 
@@ -63,27 +54,11 @@ $$
 对权重计算函数 $\alpha$ 需要满足 凸组合 ( convex combination) 的性质:
 每个 $\boldsymbol{v}_{i}$ 乘上的权重系数之和 $=1$ 且每项权重 $\alpha_{i}\geq{0}$
 
-$$
-\sum_{i=1}^{m}
-\alpha(\mathbf{q},\mathbf{k}_i)=1,
-\qquad
-\alpha(\mathbf{q},\mathbf{k}_i)\ge 0
-$$
+$$ \sum_{i=1}^{m} \alpha(\mathbf{q},\mathbf{k}_i)=1, \qquad \alpha(\mathbf{q},\mathbf{k}_i)\ge 0 $$
 
 因此要套一层 *softmax* 得到 attention weight 的函数:
 
-$$
-\alpha(\mathbf{q},\mathbf{k}_i)
-=
-\operatorname{softmax}\!\left(a(\mathbf{q},\mathbf{k}_i)\right)
-=
-\frac{
-\exp\!\left(\mathbf{q}^{\top}\mathbf{k}_i/\sqrt{d}\right)
-}{
-\sum_{j=1}^{n}
-\exp\!\left(\mathbf{q}^{\top}\mathbf{k}_j/\sqrt{d}\right)
-}
-$$
+$$ \alpha(\mathbf{q},\mathbf{k}_i) = \operatorname{softmax}\!\left(a(\mathbf{q},\mathbf{k}_i)\right) = \frac{ \exp\!\left(\mathbf{q}^{\top}\mathbf{k}_i/\sqrt{d}\right) }{ \sum_{j=1}^{n} \exp\!\left(\mathbf{q}^{\top}\mathbf{k}_j/\sqrt{d}\right) } $$
 
 [^1]
 
@@ -101,30 +76,13 @@ $$
 
 所以给出矩阵形式的定义
 
-$$
-\mathbf{Q}\in\mathbb{R}^{n\times d},
-\qquad
-\mathbf{K}\in\mathbb{R}^{m\times d},
-\qquad
-\mathbf{V}\in\mathbb{R}^{m\times v}
-\qquad
-\boldsymbol{S} \in \mathbb{R}^{n\times m}
-$$
+$$ \mathbf{Q}\in\mathbb{R}^{n\times d}, \qquad \mathbf{K}\in\mathbb{R}^{m\times d}, \qquad \mathbf{V}\in\mathbb{R}^{m\times v} \qquad \boldsymbol{S} \in \mathbb{R}^{n\times m} $$
 
-$$
-\boldsymbol{S} = \frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d}}
-$$
+$$ \boldsymbol{S} = \frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d}} $$
 
 计算时间复杂度是 $O(mnd)$ 理解为最终产出 $mn$ 个元素,并且每个元素的产生有 $d$ 项加起来得到的
 
-$$
-\operatorname{softmax}\!\left(
-\frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d}}
-\right)
-\mathbf{V}
-\in
-\mathbb{R}^{n\times v}
-$$
+$$ \operatorname{softmax}\!\left( \frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d}} \right) \mathbf{V} \in \mathbb{R}^{n\times v} $$
 
 在实际计算中加入 batch 维度
 
@@ -161,25 +119,12 @@ shape= (b,n,m)
 
 本质上是 Attention 本身是要算一组
 
-$$
-\mathbf S=[s_{ij}]_{n\times m},
-\qquad
-s_{ij}=a(\mathbf q_i,\mathbf k_j)
-$$
+$$ \mathbf S=[s_{ij}]_{n\times m}, \qquad s_{ij}=a(\mathbf q_i,\mathbf k_j) $$
 
 表示所有 query 与 key 之间的匹配程度, 但有些 query-key 位置按照**任务规则**不允许被关注
 
 
-$$
-\widetilde{\mathbf S}_{ij}
-=
-\begin{cases}
-\mathbf S_{ij}, & M_{ij}=1\quad (\mathbf q_i\text{ 可以关注 }\mathbf k_j),\\
--\infty, & M_{ij}=0\quad (\mathbf q_i\text{ 不允许关注 }\mathbf k_j),
-\end{cases}
-\qquad
-\mathbf M\in\{0,1\}^{n\times m}
-$$
+$$ \widetilde{\mathbf S}_{ij} = \begin{cases} \mathbf S_{ij}, & M_{ij}=1\quad (\mathbf q_i\text{ 可以关注 }\mathbf k_j),\\ -\infty, & M_{ij}=0\quad (\mathbf q_i\text{ 不允许关注 }\mathbf k_j), \end{cases} \qquad \mathbf M\in\{0,1\}^{n\times m} $$
 
 实现思路就是送入 softmax 操作之前被 set 成 $-\infty$ 最终输出的 attention weight 自然变成 $0$
 
@@ -200,18 +145,7 @@ $$
 
 这是相对于 scaled dot product 的 attention score 方法, 适用于 $\mathbf{q}\in\mathbb{R}^{q},\mathbf{k}\in\mathbb{R}^{k}$ 维度不匹配不能 dot product 的时候
 
-$$
-a(\mathbf{q},\mathbf{k})
-=
-\mathbf{w}_v^{\top}
-\operatorname{tanh}\!\left(
-\mathbf{W}_q\mathbf{q}
-+
-\mathbf{W}_k\mathbf{k}
-\right)
-\in
-\mathbb{R}
-$$
+$$ a(\mathbf{q},\mathbf{k}) = \mathbf{w}_v^{\top} \operatorname{tanh}\!\left( \mathbf{W}_q\mathbf{q} + \mathbf{W}_k\mathbf{k} \right) \in \mathbb{R} $$
 
 * 本质上是将 $\boldsymbol{q}$ 和 $\boldsymbol{k}$ 拼接起来，并输入到具有单个隐藏层的 MLP 中
 其中 $\mathbf{W}_q\in\mathbb{R}^{h\times q}, \mathbf{W}_k\in\mathbb{R}^{h\times k}, \mathbf{w}_v\in\mathbb{R}^{h}$
@@ -226,19 +160,13 @@ k ──W_k──┘
 
 再使用普通 MLP：
 
-$$
-\mathbf h_i = \tanh \left( \underbrace{ \begin{bmatrix} \mathbf W_q&\mathbf W_k \end{bmatrix} }_{h\times(d_q+d_k)} \begin{bmatrix} \mathbf q\\ \mathbf k_i \end{bmatrix} \right)
-$$
+$$ \mathbf h_i = \tanh \left( \underbrace{ \begin{bmatrix} \mathbf W_q&\mathbf W_k \end{bmatrix} }_{h\times(d_q+d_k)} \begin{bmatrix} \mathbf q\\ \mathbf k_i \end{bmatrix} \right) $$
 
-$$
-s_i = \underbrace{\mathbf w_v^\top}_{1\times h} \mathbf h_i
-$$
+$$ s_i = \underbrace{\mathbf w_v^\top}_{1\times h} \mathbf h_i $$
 
 层宽可以写成：
 
-$$
- (d_q+d_k)\rightarrow h\rightarrow1 
-$$
+$$ (d_q+d_k)\rightarrow h\rightarrow1 $$
 
 > `tanh` 是激活函数它把任意实数压缩到 $(-1,1)$[nn](../nn-basics/)
 
@@ -254,13 +182,7 @@ $$
 
 假设共有 $n$ 个查询、$m$ 个 key-value 对：
 
-$$
-\mathbf{Q}\in\mathbb{R}^{n\times d_q},
-\qquad
-\mathbf{K}\in\mathbb{R}^{m\times d_k},
-\qquad
-\mathbf{V}\in\mathbb{R}^{m\times d_v}
-$$
+$$ \mathbf{Q}\in\mathbb{R}^{n\times d_q}, \qquad \mathbf{K}\in\mathbb{R}^{m\times d_k}, \qquad \mathbf{V}\in\mathbb{R}^{m\times d_v} $$
 
 第 $i$ 个头的投影矩阵 (统一到 $d_{h}$ 维度)
 
@@ -269,73 +191,31 @@ $$
 
 对于第 $i$ 个注意力头，其中 $i=1,\ldots,h$，定义：
 
-$$
-\mathbf{W}_i^Q\in\mathbb{R}^{d_q\times d_h},
-\qquad
-\mathbf{W}_i^K\in\mathbb{R}^{d_k\times d_h},
-\qquad
-\mathbf{W}_i^V\in\mathbb{R}^{d_v\times d_h}
-$$
+$$ \mathbf{W}_i^Q\in\mathbb{R}^{d_q\times d_h}, \qquad \mathbf{W}_i^K\in\mathbb{R}^{d_k\times d_h}, \qquad \mathbf{W}_i^V\in\mathbb{R}^{d_v\times d_h} $$
 
 第 $i$ 个头的 $Q/K/V$ 表示
 
 同一组原始 $\mathbf Q,\mathbf K,\mathbf V$ 经过第 $i$ 套投影矩阵：
 
-$$
-\mathbf{Q}_i
-=
-\mathbf{Q}\mathbf{W}_i^Q
-\in\mathbb{R}^{n\times d_h},
-\qquad
-\mathbf{K}_i
-=
-\mathbf{K}\mathbf{W}_i^K
-\in\mathbb{R}^{m\times d_h},
-\qquad
-\mathbf{V}_i
-=
-\mathbf{V}\mathbf{W}_i^V
-\in\mathbb{R}^{m\times d_h}
-$$
+$$ \mathbf{Q}_i = \mathbf{Q}\mathbf{W}_i^Q \in\mathbb{R}^{n\times d_h}, \qquad \mathbf{K}_i = \mathbf{K}\mathbf{W}_i^K \in\mathbb{R}^{m\times d_h}, \qquad \mathbf{V}_i = \mathbf{V}\mathbf{W}_i^V \in\mathbb{R}^{m\times d_h} $$
 
 第 $i$ 个头的 attention 表示
 
-$$
-\operatorname{head}_i = \operatorname{Attention} (QW_i^Q,KW_i^K,VW_i^V) \in\mathbb{R}^{n\times d_h}
-$$
+$$ \operatorname{head}_i = \operatorname{Attention} (QW_i^Q,KW_i^K,VW_i^V) \in\mathbb{R}^{n\times d_h} $$
 
 多头拼接
 
 将 $h$ 个头沿特征维度拼接：
 
-$$
-\mathbf{H}
-=
-\operatorname{Concat}
-\left(
-\operatorname{head}_1,\ldots,\operatorname{head}_h
-\right)
-\in\mathbb{R}^{n\times hd_h}
-$$
+$$ \mathbf{H} = \operatorname{Concat} \left( \operatorname{head}_1,\ldots,\operatorname{head}_h \right) \in\mathbb{R}^{n\times hd_h} $$
 
 定义输出投影矩阵
 
-$$
-\mathbf{W}^O\in\mathbb{R}^{hd_h\times d_o}
-$$
+$$ \mathbf{W}^O\in\mathbb{R}^{hd_h\times d_o} $$
 
 多头注意力的最终输出为：
 
-$$
-\operatorname{MultiHead}(\mathbf{Q},\mathbf{K},\mathbf{V})
-=
-\operatorname{Concat}
-\left(
-\operatorname{head}_1,\ldots,\operatorname{head}_h
-\right)
-\mathbf{W}^O
-\in\mathbb{R}^{n\times d_o}
-$$
+$$ \operatorname{MultiHead}(\mathbf{Q},\mathbf{K},\mathbf{V}) = \operatorname{Concat} \left( \operatorname{head}_1,\ldots,\operatorname{head}_h \right) \mathbf{W}^O \in\mathbb{R}^{n\times d_o} $$
 
 ### Self-Attention and Cross-Attention
 
@@ -397,9 +277,7 @@ $$
 
 其中
 
-$$
-\text{head output}=\text{self\_weights}\times V_{heads}
-$$
+$$ \text{head output}=\text{self\_weights}\times V_{heads} $$
 
 > [!example]- 代码：各个 head 的输出
 >
@@ -430,9 +308,7 @@ $\text{固定正余弦绝对位置编码：}\quad src=X+P$
 
 假设输入表示 $\mathbf{X}\in\mathbb{R}^{n\times d}$ 包含序列符号的  $dn$- 维嵌入。位置编码 $\mathbf{X}+\mathbf{P},$ 使用  $\mathbf{P}\in\mathbb{R}^{n\times d}$ 相同形状的位置嵌入矩阵输出，其在 $i^{th}$ 行和 $(2j)^{th}$ 或 $(2j+1)^{th}$  列上的元素为
 
-$$
-\begin{split}\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2j+1} &= \cos\left(\frac{i}{10000^{2j/d}}\right).\end{aligned}\end{split}
-$$
+$$ \begin{split}\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2j+1} &= \cos\left(\frac{i}{10000^{2j/d}}\right).\end{aligned}\end{split} $$
 
 只在最开始送入 encoder`TransformerEncoderLayer`(或者 decoder) 堆叠或者 `MultiheadAttention` 的时候编码位置信息
 
@@ -633,9 +509,7 @@ Transformer 是处理序列的, 图像在送入之前得切块才能变成 token
 
 考虑批量输入图像：
 
-$$
- \mathbf{X}\in\mathbb{R}^{B\times c\times h\times w} 
-$$
+$$ \mathbf{X}\in\mathbb{R}^{B\times c\times h\times w} $$
 
 将 patch 的高度和宽度均设为 $p$
 
@@ -653,15 +527,11 @@ $$
 
 图像块的数量为：
 
-$$
- m=\frac{h}{p}\frac{w}{p}=\frac{hw}{p^2} 
-$$
+$$ m=\frac{h}{p}\frac{w}{p}=\frac{hw}{p^2} $$
 
 每个 patch 包含 $cp^2$ 个元素。`nn.Conv2d` 一次完成“划分 patch + 将每个 patch 线性投影到 $d$ 维”，得到二维 patch 网格。随后，`flatten(2)` 将二维网格合并为长度为 $m$ 的 patch 序列，`transpose(1, 2)` 再将维度排列为 Transformer 使用的 $(B,m,d)$：
 
-$$
- (B,c,h,w) \xrightarrow{\mathrm{Conv2d}} \left(B,d,\frac{h}{p},\frac{w}{p}\right) \xrightarrow{\mathrm{flatten}(2)} (B,d,m) \xrightarrow{\mathrm{transpose}(1,2)} (B,m,d) 
-$$
+$$ (B,c,h,w) \xrightarrow{\mathrm{Conv2d}} \left(B,d,\frac{h}{p},\frac{w}{p}\right) \xrightarrow{\mathrm{flatten}(2)} (B,d,m) \xrightarrow{\mathrm{transpose}(1,2)} (B,m,d) $$
 
 其中 $d=\texttt{embed\_dim}$，最终得到由 $m$ 个 $d$ 维视觉 token 组成的序列。[^4]
 
@@ -1084,9 +954,7 @@ Self-Attention 输入 $X$ 输出 $R=Z$
 
 也就是说，至少得让相同的 token 在 transformer 里面是不一样的吧，因此 token 被送入 transformer 之前都要加上位置编码
 
-$$
-X = X_{\text{token}} + P
-$$
+$$ X = X_{\text{token}} + P $$
 
 加完之后，每个 token 的向量已经不只是内容向量，而是“内容 + 位置”的混合表示
 

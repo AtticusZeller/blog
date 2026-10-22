@@ -97,20 +97,13 @@ batch norm在视觉，卷积网络常见，但是nlp transformer里面通常用 
 平时直接用就是 `nn.dropout` 其input/output形状不变, 从伯努利分布中采样, 按照p概率对 元素置0, 其余元素同时用$1/(1-p)$ 缩放保证期望不变
 
 
-$$\boldsymbol{x}'=
-\begin{cases}
-0, & \text{概率 }p,\\
-\dfrac{\boldsymbol{x}}{1-p}, & \text{概率 }1-p,
-\end{cases}
-\qquad
-\mathbb{E}[\boldsymbol{x}']=\boldsymbol{x}$$
+$$\boldsymbol{x}'= \begin{cases} 0, & \text{概率 }p,\\ \dfrac{\boldsymbol{x}}{1-p}, & \text{概率 }1-p, \end{cases} \qquad \mathbb{E}[\boldsymbol{x}']=\boldsymbol{x}$$
 只在训练时候生效
 就是对一些元素随机置为0，剩下元素缩放保证期望不变
 通常层级比较高 一般一个功能性模块刚刚输出就用
 用来正则化的 防止过拟合 
 
 
-## 
 
 
 ## tanh
