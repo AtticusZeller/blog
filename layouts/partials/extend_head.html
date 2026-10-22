@@ -9,9 +9,13 @@
       tags: "ams"
     },
     options: {
-      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
     }
   };
 </script>
+{{- /* MathJax 3.2.2 is self-hosted under static/mathjax/ (Apache-2.0, see
+     static/mathjax/LICENSE): cdn.jsdelivr.net is slow or unreachable from
+     mainland China. CHTML fonts load from es5/output/chtml/fonts/woff-v2/,
+     resolved relative to the script URL. */ -}}
 <script type="text/javascript" id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  src='{{ "mathjax/es5/tex-mml-chtml.js" | relURL }}'></script>
