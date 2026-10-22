@@ -1,0 +1,6 @@
+# Hugo output; deployed through the page branch.
+public/
+
+.DS_Store
+*.swp
+*~
