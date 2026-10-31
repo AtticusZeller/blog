@@ -7,9 +7,14 @@
   {{- if not (hasPrefix $path "/") -}}{{- $path = print "/" $path -}}{{- end -}}
   {{- $src = print $base $path -}}
 {{- end -}}
+{{- if strings.HasSuffix (lower (index (split $dest "?") 0)) ".mp4" -}}
+<video src="{{ $src | safeURL }}" controls playsinline preload="metadata" aria-label="{{ .Text }}"></video>
+{{- else -}}
 <img src="{{ $src | safeURL }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy">
+{{- end -}}
 {{- /* Markdown image render hook.
      Hugo's relURL doesn't prepend the baseURL's subpath when destinations
      start with /, so we manually splice the path component of site.BaseURL
      onto destinations. External URLs (http/https/protocol-relative/data:)
-     pass through unchanged. */ -}}
+     pass through unchanged. A `.mp4` destination (blog-publish transcodes
+     vault videos to H.264 MP4) renders as a <video> player. */ -}}

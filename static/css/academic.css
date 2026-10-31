@@ -120,3 +120,12 @@ nav,
   padding: 0.5em 1em;
   font-size: 95%;
 }
+
+/* Videos embedded via ![alt](/images/x.mp4); portrait clips stay within the viewport. */
+.post-content video {
+  display: block;
+  max-width: 100%;
+  max-height: 75vh;
+  margin: 1.5em auto;
+  background: #000;
+}
