@@ -1,11 +1,11 @@
 # Blog
 
-Personal academic blog built with Hugo + PaperMod and deployed to GitHub Pages.
+Personal academic blog built with Hugo + PaperMod and deployed to GitHub Pages at https://blog.atticux.me/.
 
 | Branch | Content |
 |:--|:--|
-| `main` | Generated posts: `posts/<slug>.md` and `posts/images/<slug>-<hash>.<ext>` |
-| `page` | Hugo site: config, PaperMod theme, layouts |
+| `main` | Generated posts: `posts/<slug>.md` and `posts/images/<slug>-<hash>.<ext>` (original images, `.webp` display copies of PNG/JPG, `.mp4` videos) |
+| `page` | Hugo site: config, PaperMod theme, layouts; its README covers rendering and the domain |
 
 Posts on `main` are generated from notes in the LifeOS vault by its `blog-publish` skill. Posts are already Hugo markdown (internal links `../<slug>/`, images `/images/<name>`). Edit the source note and publish again; do not edit `posts/` by hand.
 
