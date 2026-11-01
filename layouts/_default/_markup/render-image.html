@@ -1,20 +1,38 @@
 {{- $dest := .Destination -}}
 {{- $isExternal := or (hasPrefix $dest "http://") (hasPrefix $dest "https://") (hasPrefix $dest "//") (hasPrefix $dest "data:") -}}
 {{- $src := $dest -}}
+{{- $path := $dest -}}
 {{- if not $isExternal -}}
   {{- $base := strings.TrimSuffix "/" (urls.Parse site.BaseURL).Path -}}
-  {{- $path := $dest -}}
   {{- if not (hasPrefix $path "/") -}}{{- $path = print "/" $path -}}{{- end -}}
   {{- $src = print $base $path -}}
 {{- end -}}
-{{- if strings.HasSuffix (lower (index (split $dest "?") 0)) ".mp4" -}}
+{{- $ext := lower (path.Ext (index (split $dest "?") 0)) -}}
+{{- if eq $ext ".mp4" -}}
 <video src="{{ $src | safeURL }}" controls playsinline preload="metadata" aria-label="{{ .Text }}"></video>
 {{- else -}}
-<img src="{{ $src | safeURL }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy">
+  {{- $file := print "static" $path -}}
+  {{- $webpPath := print (strings.TrimSuffix $ext $path) ".webp" -}}
+  {{- $hasWebp := and (not $isExternal) (in (slice ".png" ".jpg" ".jpeg") $ext) (fileExists (print "static" $webpPath)) -}}
+  {{- $size := "" -}}
+  {{- if and (not $isExternal) (fileExists $file) (in (slice ".png" ".jpg" ".jpeg" ".gif" ".webp") $ext) -}}
+    {{- with images.Config $file -}}{{- $size = printf ` width="%d" height="%d"` .Width .Height -}}{{- end -}}
+  {{- end -}}
+  {{- $img := printf `<img src="%s" alt="%s"%s%s loading="lazy" decoding="async">` $src (.PlainText | htmlEscape) (cond (ne .Title "") (printf ` title="%s"` (.Title | htmlEscape)) "") $size -}}
+  {{- if $hasWebp -}}
+<a class="img-original" href="{{ $src | safeURL }}" title="查看原图"><picture><source srcset="{{ print (strings.TrimSuffix $path $src) $webpPath | safeURL }}" type="image/webp">{{ $img | safeHTML }}</picture></a>
+  {{- else -}}
+{{ $img | safeHTML }}
+  {{- end -}}
 {{- end -}}
 {{- /* Markdown image render hook.
      Hugo's relURL doesn't prepend the baseURL's subpath when destinations
      start with /, so we manually splice the path component of site.BaseURL
      onto destinations. External URLs (http/https/protocol-relative/data:)
-     pass through unchanged. A `.mp4` destination (blog-publish transcodes
-     vault videos to H.264 MP4) renders as a <video> player. */ -}}
+     pass through unchanged.
+     - `.mp4` (blog-publish transcodes vault videos to H.264) renders as <video>.
+     - A PNG/JPG with a sibling `<same-name>.webp` (blog-publish writes a
+       <=1600px display copy) renders as <picture>: browsers load the WebP,
+       fall back to the original, and the wrapping link opens the original,
+       so "save image" from the original view keeps full quality and format.
+     - Local raster images get width/height from the file to avoid layout shift. */ -}}

@@ -129,3 +129,13 @@ nav,
   margin: 1.5em auto;
   background: #000;
 }
+
+/* Images rendered by render-image.html carry width/height; keep aspect ratio when scaled. */
+.post-content img {
+  height: auto;
+}
+
+.post-content a.img-original {
+  border-bottom: none;
+  text-decoration: none;
+}
