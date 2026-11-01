@@ -1,4 +1,5 @@
 <link rel="stylesheet" href='{{ "css/academic.css" | relURL }}'>
+{{- if .Params.math }}
 <script>
   MathJax = {
     tex: {
@@ -19,3 +20,4 @@
      resolved relative to the script URL. */ -}}
 <script type="text/javascript" id="MathJax-script" async
   src='{{ "mathjax/es5/tex-mml-chtml.js" | relURL }}'></script>
+{{- end }}
