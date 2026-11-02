@@ -94,7 +94,7 @@ tocopen: true
 
 ![Pasted image 20261030151837](/images/agibot-innovation-day-2026-f35f84201caa.png)
 
-群体进化更多的是群体运控
+群体进化更多的是后面提到的**真机 RL**：用整个机器人集群在真实部署中积累的经验做后训练，对应后文的 CEL（Collective Experience Learning，96 台机器人）
 
 **第五次跃迁：智能系统自我举升**
 
@@ -374,7 +374,9 @@ CEL 使用的核心算法之一是 FERT（Failure-guided Experience Retrieval Fi
 
 成功轨迹提供动作监督，失败轨迹提供学习重点。
 
-[Learning from Fleet Experience: Collective Experience Learning across 96 Robots](https://cel-robot-learning.github.io/) RLinf 里面开源了好像，这部分的工作是于老师参加的
+论文：[Learning from Fleet Experience: Collective Experience Learning across 96 Robots](https://cel-robot-learning.github.io/)，副标题是 The fleet becomes a source of experience（机器人集群成为经验的来源）。作者来自清华大学、智元和无问芯穹，这部分的工作是于超老师（THU）参加的。
+
+RLinf 百机实验的技术报告已经上线，共 50 页，总结了过去大半年对大规模真机后训练的探索。
 
 介绍完 FERT 之后，姚卯青进一步强调：即使算法能够从群体经验中学习，也必须解决真实机器人集群的工程稳定性问题。
 
