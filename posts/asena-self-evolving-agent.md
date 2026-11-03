@@ -25,10 +25,10 @@ tocopen: true
 
 这篇文章将 agent 和 vln 结合了，并且设计了一个叫
 
-* ASENA 的系统 - 一个用于传感器访问、代码执行、监督式机器人控制与持久经验的具身智能体系统
-* ASENA-VLN 是一种可选的 4B 单目导航策略，可将指令与 RGB 历史映射为航点，该策略在仿真中评估，并可由 coding agent 作为导航工具调用
+- ASENA 的系统 - 一个用于传感器访问、代码执行、监督式机器人控制与持久经验的具身智能体系统
+- ASENA-VLN 是一种可选的 4B 单目导航策略，可将指令与 RGB 历史映射为航点，该策略在仿真中评估，并可由 coding agent 作为导航工具调用
 
-![Pasted image 20261102182021](/images/asena-self-evolving-agent-cc0655325863.png)
+![Pasted image 20261102211420](/images/asena-self-evolving-agent-ced312f40159.png)
 
 ## Self-evolving
 
@@ -44,9 +44,9 @@ ASENA 研究的是“权重全部固定，只让工作区围绕一个预训练�
 
 具体对应的是**工作区里的文件**：
 
-* **可执行技能：** 一个个 `.py`，比如 `onsurface.py`、`climb.py`
-* **笔记、指导和心得：** EQA 部分说演化会加入新的例程、细化已有的指导
-* **以前的动作序列：** 在 R2R/RxR 的重复任务里，worker 还可以保存之前的动作序列（Sec. 4.4）
+- **可执行技能：** 一个个 `.py`，比如 `onsurface.py`、`climb.py`
+- **笔记、指导和心得：** EQA 部分说演化会加入新的例程、细化已有的指导
+- **以前的动作序列：** 在 R2R/RxR 的重复任务里，worker 还可以保存之前的动作序列（Sec. 4.4）
 
 它和真正的权重有两点不同
 
@@ -114,7 +114,7 @@ VLN 的
 
 理由是
 
-* 对 agent 来说，好处是它可以用代码拼出精确的约束，比如 `{"target":"agent_start","relation":"forward","distance_m":1.0}`，不用只靠一句自然语言
+- 对 agent 来说，好处是它可以用代码拼出精确的约束，比如 `{"target":"agent_start","relation":"forward","distance_m":1.0}`，不用只靠一句自然语言
 
 因此 为了让训练数据对上这个接口，他们用 GPT-5.5 把原有的导航指令 **（自然语言）重写成这种 JSON 格式**（Sec. 3.3 “Training mixture”，附录 Table 10）
 
